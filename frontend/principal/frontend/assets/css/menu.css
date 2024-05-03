@@ -1,0 +1,61 @@
+
+a:hover {
+    padding-bottom: 5px;
+    box-shadow: inset 0 -2px 0 0 #333;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+.image_logo2 {
+    display: none;
+}
+
+@media (max-width: 800px) {
+    .image_logo2 {
+        animation: moveimage_logo2 10s ease-in-out;
+        /* animação chamada "moveimage_logo2" com função de temporização ease-in-out */
+        position: relative;
+        /* Adicionando posição relativa */
+        left: 0;
+        /* Começando a partir da posição inicial */
+    }
+
+    @keyframes moveimage_logo2 {
+        0% {
+            left: 0;
+        }
+
+        50% {
+            left: calc(93% - 29vh - 4vh);
+            /* Movendo para a direita com base na largura da tela */
+        }
+
+        100% {
+            left: 0;
+            /* Retornando à posição inicial */
+        }
+    }
+
+    .image_logo2 {
+        display: block;
+        max-width: 28vh;
+        padding: 7px;
+        margin-left: 3vh;
+    }
+}

@@ -22,6 +22,8 @@ const user = { id: "", name: "", color: "" }
 
 let websocket
 
+let oldMessages = [];
+
 const createMessageSelfElement = (content) => {
     const div = document.createElement("div")
 
@@ -61,17 +63,18 @@ const scrollScreen = () => {
 }
 
 const processMessage = ({ data }) => {
-    const { userId, userName, userColor, content } = JSON.parse(data)
+    const message = JSON.parse(data);
+    const { userId, userName, userColor, content } = message;
 
-    const message =
-        userId == user.id
-            ? createMessageSelfElement(content)
-            : createMessageOtherElement(content, userName, userColor)
+    const messageElement = userId === user.id
+        ? createMessageSelfElement(content)
+        : createMessageOtherElement(content, userName, userColor);
 
-    chatMessages.appendChild(message)
-
-    scrollScreen()
-}
+    chatMessages.appendChild(messageElement);
+    scrollScreen();
+    // Adiciona a mensagem ao array de mensagens antigas
+    oldMessages.push(message);
+};
 
 const handleLogin = (event) => {
     event.preventDefault()
@@ -83,11 +86,29 @@ const handleLogin = (event) => {
     login.style.display = "none"
     chat.style.display = "flex"
 
-    websocket = new WebSocket("wss://chat-way.onrender.com")
-    websocket.onmessage = processMessage
+    websocket = new WebSocket("wss://chat-way.onrender.com");
+    
+    websocket.onmessage = (event) => {
+        const data = JSON.parse(event.data);
+        if (data.action === "oldMessages") {
+            oldMessages = data.messages;
+            // Processa e exibe as mensagens antigas
+            oldMessages.forEach((message) => {
+                processMessage({ data: JSON.stringify(message) });
+            });
+        } else {
+            processMessage(event);
+        }
+    };
+
+    // Solicita as mensagens antigas ao conectar
+    websocket.onopen = () => {
+        websocket.send(JSON.stringify({ action: "getOldMessages" }));
+    };
 }
 
 const sendMessage = (event) => {
+    
     event.preventDefault()
 
     const message = {
